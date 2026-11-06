@@ -1,0 +1,924 @@
+{
+	"info": {
+		"_postman_id": "9b1e9c20-7f28-4c92-9351-a20261106e01",
+		"name": "TiendaApp - API REST JWT & Roles",
+		"description": "Colección completa para la API TiendaApp con autenticación JWT, interceptor de roles (@RequiresRole), reglas de propiedad y validaciones.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:9090/api/v1/tienda",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "adminToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "vendedorToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "clienteToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "productId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "orderId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "categoryId",
+			"value": "1",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "01. Autenticación (Público)",
+			"item": [
+				{
+					"name": "Registrar Usuario (CLIENTE)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"cliente_nuevo\",\n  \"email\": \"cliente_nuevo@tienda.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Registra un nuevo usuario siempre con rol CLIENTE. Duplicados retornan 409."
+					}
+				},
+				{
+					"name": "Login (ADMIN)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"token\", jsonData.data.jwt);",
+									"    pm.collectionVariables.set(\"adminToken\", jsonData.data.jwt);",
+									"    pm.environment.set(\"token\", jsonData.data.jwt);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user\": \"admin\",\n  \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Inicio de sesión para ADMIN. Guarda el JWT en las variables."
+					}
+				},
+				{
+					"name": "Login (CLIENTE)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"token\", jsonData.data.jwt);",
+									"    pm.collectionVariables.set(\"clienteToken\", jsonData.data.jwt);",
+									"    pm.environment.set(\"token\", jsonData.data.jwt);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user\": \"carlos_cliente\",\n  \"password\": \"cliente123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "Login (VENDEDOR)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"token\", jsonData.data.jwt);",
+									"    pm.collectionVariables.set(\"vendedorToken\", jsonData.data.jwt);",
+									"    pm.environment.set(\"token\", jsonData.data.jwt);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user\": \"pedro_vendedor\",\n  \"password\": \"vendedor123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "Refrescar Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"token\", jsonData.data.jwt);",
+									"    pm.environment.set(\"token\", jsonData.data.jwt);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/auth/refreshtoken",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"refreshtoken"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "02. Usuarios",
+			"item": [
+				{
+					"name": "Obtener Mi Perfil (GET /users/me)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"me"
+							]
+						}
+					}
+				},
+				{
+					"name": "Listar Todos los Usuarios (ADMIN)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					}
+				},
+				{
+					"name": "Crear Usuario con Rol (ADMIN)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"vendedor_nuevo\",\n  \"email\": \"vendedor_nuevo@tienda.com\",\n  \"password\": \"vendedor123\",\n  \"rolId\": 3,\n  \"active\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					}
+				},
+				{
+					"name": "Cambiar Rol de Usuario (ADMIN)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"rolId\": 3\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/2/role",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"2",
+								"role"
+							]
+						}
+					}
+				},
+				{
+					"name": "Activar o Desactivar Usuario (ADMIN)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"active\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/2/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"2",
+								"status"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "03. Categorías",
+			"item": [
+				{
+					"name": "Listar Categorías",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories"
+							]
+						}
+					}
+				},
+				{
+					"name": "Crear Categoría (ADMIN)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Ropa y Accesorios\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories"
+							]
+						}
+					}
+				},
+				{
+					"name": "Eliminar Categoría sin Productos (ADMIN)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/categories/{{categoryId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories",
+								"{{categoryId}}"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "04. Productos",
+			"item": [
+				{
+					"name": "Catálogo Público (GET /products)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/products?page=0&size=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								},
+								{
+									"key": "categoryId",
+									"value": "1",
+									"disabled": true
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Detalle de Producto (GET /products/:id)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/products/{{productId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products",
+								"{{productId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Productos de Mi Autoría (VENDEDOR)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{vendedorToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/products/mine",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products",
+								"mine"
+							]
+						}
+					}
+				},
+				{
+					"name": "Crear Producto (VENDEDOR)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{vendedorToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Teclado Mecanico RGB\",\n  \"description\": \"Switches Cherry MX Red\",\n  \"price\": 120.50,\n  \"stock\": 15,\n  \"categoryId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products"
+							]
+						}
+					}
+				},
+				{
+					"name": "Actualizar Producto (VENDEDOR Dueño / ADMIN)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{vendedorToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Monitor 4K Ultra Slim\",\n  \"description\": \"Actualizado con garantia\",\n  \"price\": 1450.00,\n  \"stock\": 8,\n  \"categoryId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products/{{productId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products",
+								"{{productId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Eliminar Producto (VENDEDOR Dueño / ADMIN)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{vendedorToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/products/{{productId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products",
+								"{{productId}}"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "05. Pedidos",
+			"item": [
+				{
+					"name": "Crear Pedido (CLIENTE)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{clienteToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"productId\": {{productId}},\n  \"quantity\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders"
+							]
+						}
+					}
+				},
+				{
+					"name": "Mis Pedidos (CLIENTE)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{clienteToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders/mine",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"mine"
+							]
+						}
+					}
+				},
+				{
+					"name": "Ventas de Mis Productos (VENDEDOR)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{vendedorToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders/sales",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"sales"
+							]
+						}
+					}
+				},
+				{
+					"name": "Todos los Pedidos (ADMIN)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders"
+							]
+						}
+					}
+				},
+				{
+					"name": "Actualizar Estado Pedido (VENDEDOR / ADMIN)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{vendedorToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"ENVIADO\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders/{{orderId}}/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"{{orderId}}",
+								"status"
+							]
+						}
+					}
+				},
+				{
+					"name": "Cancelar Pedido Propio (CLIENTE)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{clienteToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders/{{orderId}}/cancel",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"{{orderId}}",
+								"cancel"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "06. Evidencias de Casos de Prueba (Rúbrica)",
+			"item": [
+				{
+					"name": "Caso 1: Login Correcto (200 OK)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user\": \"admin\",\n  \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "Caso 2: Token Ausente (401 Unauthorized)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"me"
+							]
+						}
+					}
+				},
+				{
+					"name": "Caso 3: Token Expirado o Inválido (401 Unauthorized)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.token_falso_invalido_o_expirado"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"me"
+							]
+						}
+					}
+				},
+				{
+					"name": "Caso 4: Rol No Permitido (403 Forbidden)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{clienteToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Un CLIENTE intentando acceder a la lista general de usuarios de ADMIN genera 403 Forbidden."
+					}
+				},
+				{
+					"name": "Caso 5: Vendedor Editando Producto Ajeno (403 Forbidden)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{vendedorToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Intento de Hack\",\n  \"description\": \"Modificado por vendedor ajeno\",\n  \"price\": 10.00,\n  \"stock\": 100,\n  \"categoryId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products",
+								"1"
+							]
+						},
+						"description": "Un VENDEDOR que no es dueño del producto intenta modificarlo y recibe 403 Forbidden."
+					}
+				},
+				{
+					"name": "Caso 6: Pedido Sin Stock Suficiente (400 Bad Request)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{clienteToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"productId\": 1,\n  \"quantity\": 9999\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders"
+							]
+						},
+						"description": "El cliente intenta comprar más unidades que las disponibles en stock y recibe 400 Bad Request."
+					}
+				}
+			]
+		}
+	]
+}
